@@ -1,0 +1,4 @@
+project_id = "catwowrlctlwowdxnuom"
+
+[functions.daily-trivia]
+verify_jwt = false
