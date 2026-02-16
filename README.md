@@ -31,8 +31,12 @@ If you want to run the "trail" locally:
 
 2. **Install dependencies:**
 
-'''bash
-    npm install
+Bash
+npm install
+Run the dev server:
+
+Bash
+npm run dev
 
 ## 🏗️ Contribution
 Have a trivia question that’s so "Chicago" it hurts? Feel free to open an issue or submit a pull request. Just remember: No Ketchup on the codebase.
