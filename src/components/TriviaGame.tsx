@@ -69,6 +69,20 @@ export default function TriviaGame() {
       };
       saveDailyState(state);
       setDailyState(state);
+
+      // Update multi-state pizza tracker (slot 0 for now since single-question mode)
+      setMultiState((prev) => {
+        const updated = { ...prev, results: [...prev.results] };
+        updated.results[0] = {
+          answered: true,
+          correct: isCorrect,
+          selectedAnswer: idx,
+          message: getRandomMessage(isCorrect),
+        };
+        saveMultiDailyState(updated);
+        return updated;
+      });
+
       setRevealing(false);
     }, 1500);
   }
