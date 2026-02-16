@@ -44,6 +44,51 @@ export interface DailyState {
   message: string;
 }
 
+/** State for multi-question (4-question) daily session */
+export interface QuestionResult {
+  answered: boolean;
+  correct: boolean;
+  selectedAnswer: number | null;
+  message: string;
+}
+
+export interface MultiDailyState {
+  date: string;
+  results: QuestionResult[];
+  currentIndex: number;
+  completed: boolean;
+}
+
+export function loadMultiDailyState(): MultiDailyState | null {
+  try {
+    const stored = localStorage.getItem("chicago-trail-trivia-multi");
+    if (!stored) return null;
+    const state: MultiDailyState = JSON.parse(stored);
+    if (state.date !== getTodayKey()) return null;
+    return state;
+  } catch {
+    return null;
+  }
+}
+
+export function saveMultiDailyState(state: MultiDailyState): void {
+  localStorage.setItem("chicago-trail-trivia-multi", JSON.stringify(state));
+}
+
+export function createFreshMultiState(): MultiDailyState {
+  return {
+    date: getTodayKey(),
+    results: Array.from({ length: 4 }, () => ({
+      answered: false,
+      correct: false,
+      selectedAnswer: null,
+      message: "",
+    })),
+    currentIndex: 0,
+    completed: false,
+  };
+}
+
 export function loadDailyState(): DailyState | null {
   try {
     const stored = localStorage.getItem("chicago-trail-trivia");
