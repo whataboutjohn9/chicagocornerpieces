@@ -1,73 +1,41 @@
-# Welcome to your Lovable project
+# Chicago Corner Pieces - v1, Daily Chicago Trivia
 
 ## Project info
+**The Daily Chicago Trivia Trail**
+Chicago Corner Pieces is a daily trivia game that mashes up the high-stakes survival of The Oregon Trail with the gritty, hyper-local knowledge of Chicago. Navigate the city's neighborhoods, avoid "pothole dysentery," and see if you can make it to the lakefront without running out of giardiniera.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**URL**: https://lovable.dev/projects/chicagocornerpieces
 
-## How can I edit this code?
+🕹️ Gameplay
+Daily Challenge: A fresh set of Chicago-centric questions every day.
 
-There are several ways of editing your application.
+Survival Mechanics: Your progress through the city depends on your trivia accuracy. Wrong answers might cost you "health" or delay your arrival.
 
-**Use Lovable**
+Local Lore: Questions cover everything from political scandals and sports history to the exact location of the best "hidden gem" beef stand.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+🛠️ Technical Stack
+This project is built with a modern frontend stack designed for speed and reliability:
 
-Changes made via Lovable will be committed automatically to this repo.
+Framework: React + Vite
+Language: TypeScript
+Styling: Tailwind CSS + shadcn/ui
+Deployment: Lovable
 
-**Use your preferred IDE**
+🚀 Getting Started
+If you want to run the "trail" locally:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Clone the repo:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Bash
+git clone https://github.com/whataboutjohn9/chicagocornerpieces.git
+Install dependencies:
 
-Follow these steps:
+Bash
+npm install
+Run the dev server:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Bash
 npm run dev
-```
+🏗️ Contribution
+Have a trivia question that’s so "Chicago" it hurts? Feel free to open an issue or submit a pull request. Just remember: No Ketchup on the codebase.
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
