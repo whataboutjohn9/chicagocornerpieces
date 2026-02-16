@@ -15,7 +15,7 @@ const Index = () => {
           ═══ DAILY TRIVIA ═══
         </p>
         <p className="text-muted-foreground text-[10px] mt-3">
-          One question. One chance. Don't die of dysentery.
+          Four questions. One chance each. Don't die of dysentery.
         </p>
       </header>
 

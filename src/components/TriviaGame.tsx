@@ -3,11 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   TriviaQuestion,
   DailyState,
+  MultiDailyState,
   loadDailyState,
   saveDailyState,
+  loadMultiDailyState,
+  saveMultiDailyState,
+  createFreshMultiState,
   getRandomMessage,
   getTodayKey,
 } from "@/lib/game-data";
+import PizzaProgress from "./PizzaProgress";
 
 export default function TriviaGame() {
   const [question, setQuestion] = useState<TriviaQuestion | null>(null);
@@ -16,6 +21,11 @@ export default function TriviaGame() {
   const [dailyState, setDailyState] = useState<DailyState | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [revealing, setRevealing] = useState(false);
+
+  // Multi-question state (4 questions)
+  const [multiState, setMultiState] = useState<MultiDailyState>(() => {
+    return loadMultiDailyState() || createFreshMultiState();
+  });
 
   useEffect(() => {
     const saved = loadDailyState();
@@ -90,6 +100,8 @@ export default function TriviaGame() {
   if (dailyState) {
     return (
       <div className="flex flex-col items-center gap-8 p-6 max-w-xl mx-auto animate-fade-in">
+        {/* Pizza progress tracker */}
+        <PizzaProgress slices={multiState.results} />
         <div
           className={`pixel-border p-6 w-full text-center ${
             dailyState.isCorrect ? "text-foreground" : "text-destructive"
@@ -118,6 +130,11 @@ export default function TriviaGame() {
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-xl mx-auto animate-fade-in">
+      {/* Pizza progress tracker */}
+      <div className="flex justify-center">
+        <PizzaProgress slices={multiState.results} />
+      </div>
+
       <div className="pixel-border p-6 bg-card">
         <p className="text-secondary text-glow-amber text-xs mb-4">
           ── DAILY TRAIL CHALLENGE ──
