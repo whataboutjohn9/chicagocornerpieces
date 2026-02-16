@@ -57,6 +57,7 @@ export interface MultiDailyState {
   results: QuestionResult[];
   currentIndex: number;
   completed: boolean;
+  questions?: TriviaQuestion[];
 }
 
 export function loadMultiDailyState(): MultiDailyState | null {

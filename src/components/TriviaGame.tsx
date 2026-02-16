@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   TriviaQuestion,
-  DailyState,
   MultiDailyState,
-  loadDailyState,
-  saveDailyState,
   loadMultiDailyState,
   saveMultiDailyState,
   createFreshMultiState,
@@ -14,40 +11,56 @@ import {
 } from "@/lib/game-data";
 import PizzaProgress from "./PizzaProgress";
 
+const TOTAL_QUESTIONS = 4;
+
 export default function TriviaGame() {
-  const [question, setQuestion] = useState<TriviaQuestion | null>(null);
+  const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dailyState, setDailyState] = useState<DailyState | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [revealing, setRevealing] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [feedbackCorrect, setFeedbackCorrect] = useState(false);
 
-  // Multi-question state (4 questions)
   const [multiState, setMultiState] = useState<MultiDailyState>(() => {
     return loadMultiDailyState() || createFreshMultiState();
   });
 
   useEffect(() => {
-    const saved = loadDailyState();
-    if (saved) {
-      setDailyState(saved);
+    const saved = loadMultiDailyState();
+    if (saved && saved.completed) {
+      setMultiState(saved);
       setLoading(false);
       return;
     }
-    fetchQuestion();
+    if (saved && saved.questions && saved.questions.length === TOTAL_QUESTIONS) {
+      // Resume with cached questions
+      setMultiState(saved);
+      setQuestions(saved.questions);
+      setLoading(false);
+      return;
+    }
+    fetchQuestions();
   }, []);
 
-  async function fetchQuestion() {
+  async function fetchQuestions() {
     try {
       setLoading(true);
       const { data, error: fnError } = await supabase.functions.invoke(
         "daily-trivia",
-        { body: { date: getTodayKey() } }
+        { body: { date: getTodayKey(), count: TOTAL_QUESTIONS } }
       );
       if (fnError) throw fnError;
-      setQuestion(data as TriviaQuestion);
+      const fetched = data as TriviaQuestion[];
+      setQuestions(fetched);
+      // Cache questions in multiState
+      setMultiState((prev) => {
+        const updated = { ...prev, questions: fetched };
+        saveMultiDailyState(updated);
+        return updated;
+      });
     } catch (e) {
-      console.error("Failed to fetch question:", e);
+      console.error("Failed to fetch questions:", e);
       setError("The trail is impassable... Try again later.");
     } finally {
       setLoading(false);
@@ -55,42 +68,55 @@ export default function TriviaGame() {
   }
 
   function handleAnswer(idx: number) {
-    if (dailyState || revealing || !question) return;
+    if (revealing || multiState.completed) return;
+    const currentQ = questions[multiState.currentIndex];
+    if (!currentQ) return;
+
     setSelectedIdx(idx);
     setRevealing(true);
 
-    setTimeout(() => {
-      const isCorrect = idx === question.correctIndex;
-      const state: DailyState = {
-        date: getTodayKey(),
-        selectedAnswer: idx,
-        isCorrect,
-        message: getRandomMessage(isCorrect),
-      };
-      saveDailyState(state);
-      setDailyState(state);
+    const isCorrect = idx === currentQ.correctIndex;
+    const message = getRandomMessage(isCorrect);
+    setFeedbackMessage(message);
+    setFeedbackCorrect(isCorrect);
 
-      // Update multi-state pizza tracker (slot 0 for now since single-question mode)
+    setTimeout(() => {
       setMultiState((prev) => {
-        const updated = { ...prev, results: [...prev.results] };
-        updated.results[0] = {
+        const updated = {
+          ...prev,
+          results: [...prev.results],
+          questions: prev.questions,
+        };
+        updated.results[prev.currentIndex] = {
           answered: true,
           correct: isCorrect,
           selectedAnswer: idx,
-          message: getRandomMessage(isCorrect),
+          message,
         };
+
+        const nextIndex = prev.currentIndex + 1;
+        if (nextIndex >= TOTAL_QUESTIONS) {
+          updated.completed = true;
+        } else {
+          updated.currentIndex = nextIndex;
+        }
+
         saveMultiDailyState(updated);
         return updated;
       });
 
+      setSelectedIdx(null);
       setRevealing(false);
-    }, 1500);
+
+      // Clear feedback after a brief moment so next question appears clean
+      setTimeout(() => setFeedbackMessage(null), 100);
+    }, 1800);
   }
 
   if (loading) {
     return (
       <div className="flex flex-col items-center gap-6 p-8">
-        <p className="text-glow">Loading today's trail challenge...</p>
+        <p className="text-glow">Loading today's trail challenges...</p>
         <span className="cursor-blink text-2xl">█</span>
       </div>
     );
@@ -101,7 +127,7 @@ export default function TriviaGame() {
       <div className="flex flex-col items-center gap-6 p-8">
         <p className="text-destructive">{error}</p>
         <button
-          onClick={fetchQuestion}
+          onClick={fetchQuestions}
           className="pixel-border bg-muted px-6 py-3 text-foreground hover:bg-border transition-colors"
         >
           TRY AGAIN
@@ -110,22 +136,36 @@ export default function TriviaGame() {
     );
   }
 
-  // Already answered today
-  if (dailyState) {
+  // All 4 answered — show summary
+  if (multiState.completed) {
+    const correctCount = multiState.results.filter((r) => r.correct).length;
+    const lastResult = multiState.results[multiState.results.length - 1];
     return (
       <div className="flex flex-col items-center gap-8 p-6 max-w-xl mx-auto animate-fade-in">
-        {/* Pizza progress tracker */}
         <PizzaProgress slices={multiState.results} />
         <div
           className={`pixel-border p-6 w-full text-center ${
-            dailyState.isCorrect ? "text-foreground" : "text-destructive"
+            correctCount >= 3 ? "text-foreground" : "text-destructive"
           }`}
         >
-          <p className={`text-lg mb-4 ${dailyState.isCorrect ? "text-glow" : ""}`}>
-            {dailyState.isCorrect ? "★ CORRECT ★" : "✖ WRONG ✖"}
+          <p className={`text-lg mb-4 ${correctCount >= 3 ? "text-glow" : ""}`}>
+            {correctCount === 4
+              ? "★ PERFECT TRAIL ★"
+              : correctCount >= 3
+              ? "★ GREAT JOURNEY ★"
+              : correctCount >= 1
+              ? "✖ ROUGH TRAIL ✖"
+              : "✖ LOST ON THE TRAIL ✖"}
           </p>
-          <p className={`${dailyState.isCorrect ? "text-glow-amber text-secondary" : ""}`}>
-            {dailyState.message}
+          <p className={`${correctCount >= 3 ? "text-glow-amber text-secondary" : ""}`}>
+            {correctCount}/{TOTAL_QUESTIONS} correct —{" "}
+            {correctCount === 4
+              ? "Your wagon made it to the lakefront!"
+              : correctCount >= 3
+              ? "You survived the journey with minor setbacks."
+              : correctCount >= 1
+              ? "Your wagon barely limped into town."
+              : "You never made it past the city limits."}
           </p>
         </div>
         <div className="pixel-border p-4 w-full text-center bg-muted">
@@ -140,26 +180,42 @@ export default function TriviaGame() {
     );
   }
 
-  if (!question) return null;
+  const currentQuestion = questions[multiState.currentIndex];
+  if (!currentQuestion) return null;
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-xl mx-auto animate-fade-in">
-      {/* Pizza progress tracker */}
       <div className="flex justify-center">
         <PizzaProgress slices={multiState.results} />
       </div>
 
+      {/* Feedback from previous answer */}
+      {feedbackMessage && revealing && (
+        <div
+          className={`pixel-border p-4 text-center animate-fade-in ${
+            feedbackCorrect ? "text-foreground" : "text-destructive"
+          }`}
+        >
+          <p className={`text-sm mb-1 ${feedbackCorrect ? "text-glow" : ""}`}>
+            {feedbackCorrect ? "★ CORRECT ★" : "✖ WRONG ✖"}
+          </p>
+          <p className={`text-xs ${feedbackCorrect ? "text-glow-amber text-secondary" : ""}`}>
+            {feedbackMessage}
+          </p>
+        </div>
+      )}
+
       <div className="pixel-border p-6 bg-card">
         <p className="text-secondary text-glow-amber text-xs mb-4">
-          ── DAILY TRAIL CHALLENGE ──
+          ── QUESTION {multiState.currentIndex + 1} OF {TOTAL_QUESTIONS} ──
         </p>
         <p className="text-foreground text-glow leading-relaxed">
-          {question.question}
+          {currentQuestion.question}
         </p>
       </div>
 
       <div className="flex flex-col gap-3">
-        {question.options.map((option, idx) => {
+        {currentQuestion.options.map((option, idx) => {
           const isSelected = selectedIdx === idx;
           return (
             <button
@@ -181,7 +237,7 @@ export default function TriviaGame() {
         })}
       </div>
 
-      {revealing && (
+      {revealing && !feedbackMessage && (
         <p className="text-center text-muted-foreground cursor-blink">
           Checking the trail map...
         </p>
