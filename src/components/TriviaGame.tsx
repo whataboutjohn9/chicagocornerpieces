@@ -110,7 +110,7 @@ export default function TriviaGame() {
 
       // Clear feedback after a brief moment so next question appears clean
       setTimeout(() => setFeedbackMessage(null), 100);
-    }, 1800);
+    }, 3800);
   }
 
   if (loading) {
@@ -217,18 +217,25 @@ export default function TriviaGame() {
       <div className="flex flex-col gap-3">
         {currentQuestion.options.map((option, idx) => {
           const isSelected = selectedIdx === idx;
+          const isCorrectAnswer = idx === currentQuestion.correctIndex;
+          const showAsCorrect = revealing && isCorrectAnswer;
+          const showAsWrong = revealing && isSelected && !feedbackCorrect;
           return (
             <button
               key={idx}
               onClick={() => handleAnswer(idx)}
               disabled={revealing}
               className={`pixel-border p-4 text-left transition-colors w-full ${
-                isSelected && revealing
+                showAsCorrect
+                  ? "bg-primary text-primary-foreground"
+                  : showAsWrong
+                  ? "bg-destructive text-destructive-foreground"
+                  : isSelected && revealing
                   ? "bg-secondary text-secondary-foreground"
                   : "bg-card text-foreground hover:bg-muted"
               } disabled:cursor-not-allowed`}
             >
-              <span className="text-secondary mr-3">
+              <span className={`mr-3 ${showAsCorrect ? "text-primary-foreground" : "text-secondary"}`}>
                 {String.fromCharCode(65 + idx)}.
               </span>
               {option}
