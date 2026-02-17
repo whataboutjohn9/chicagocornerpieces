@@ -19,12 +19,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `Today's date is ${today}. Generate exactly ${questionCount} multiple-choice Chicago trivia question${questionCount > 1 ? "s" : ""}. 
-Each question should be about Chicago — its history, landmarks, sports teams, food, neighborhoods, culture, or famous people.
-Each question should cover a DIFFERENT topic/category.
+    const prompt = `Today's date is ${today}. Generate exactly 4 multiple-choice Chicago trivia questions, one from EACH of these categories in this order:
+
+1. General Chicago trivia (landmarks, food, neighborhoods, culture, geography)
+2. Chicago Sports (Bears, Bulls, Cubs, White Sox, Blackhawks, Fire, Sky, players, stadiums, historic moments)
+3. Chicago Entertainment (movies filmed in Chicago, actors/actresses born in Chicago, TV shows set or filmed in Chicago) — IMPORTANT: Do NOT use Oprah Winfrey or John Cusack in any question
+4. Chicago History (founding, Great Fire, world's fairs, politics, architecture history, historical figures)
+
 Use the date as a seed so the questions are unique to this day but deterministic.
 
-You MUST call the provide_questions function with ALL ${questionCount} questions at once.`;
+You MUST call the provide_questions function with ALL 4 questions at once.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
