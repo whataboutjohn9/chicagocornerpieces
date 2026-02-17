@@ -180,7 +180,7 @@ export default function TriviaGame() {
           <p className={`${correctCount >= 3 ? "text-glow-amber text-secondary" : ""}`}>
             {correctCount}/{TOTAL_QUESTIONS} slices delivered to{" "}
             <span className="text-secondary text-glow-amber">{mission.character}</span>{" "}
-            at {mission.endLocation} —{" "}
+            in {mission.endLocation} —{" "}
             {correctCount === 4
               ? "A perfect delivery from " + mission.startLocation + "!"
               : correctCount >= 3
