@@ -9,7 +9,9 @@ import {
   getRandomMessage,
   getTodayKey,
 } from "@/lib/game-data";
+import { getDailyMission } from "@/lib/mission-data";
 import PizzaProgress from "./PizzaProgress";
+import MissionIntro from "./MissionIntro";
 
 const TOTAL_QUESTIONS = 4;
 
@@ -21,6 +23,9 @@ export default function TriviaGame() {
   const [revealing, setRevealing] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [feedbackCorrect, setFeedbackCorrect] = useState(false);
+  const [showMission, setShowMission] = useState(true);
+
+  const mission = getDailyMission(getTodayKey());
 
   const [multiState, setMultiState] = useState<MultiDailyState>(() => {
     return loadMultiDailyState() || createFreshMultiState();
@@ -31,16 +36,19 @@ export default function TriviaGame() {
     if (saved && saved.completed) {
       setMultiState(saved);
       setLoading(false);
+      setShowMission(false);
       return;
     }
     if (saved && saved.questions && saved.questions.length === TOTAL_QUESTIONS) {
-      // Resume with cached questions
       setMultiState(saved);
       setQuestions(saved.questions);
       setLoading(false);
+      // If they already started answering, skip mission
+      if (saved.currentIndex > 0) setShowMission(false);
       return;
     }
-    fetchQuestions();
+    // Questions will be fetched when user dismisses mission intro
+    setLoading(false);
   }, []);
 
   async function fetchQuestions() {
@@ -113,6 +121,18 @@ export default function TriviaGame() {
     }, 3800);
   }
 
+  if (showMission && !multiState.completed) {
+    return (
+      <MissionIntro
+        mission={mission}
+        onStart={() => {
+          setShowMission(false);
+          if (questions.length === 0) fetchQuestions();
+        }}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center gap-6 p-8">
@@ -158,14 +178,16 @@ export default function TriviaGame() {
               : "✖ LOST ON THE TRAIL ✖"}
           </p>
           <p className={`${correctCount >= 3 ? "text-glow-amber text-secondary" : ""}`}>
-            {correctCount}/{TOTAL_QUESTIONS} correct —{" "}
+            {correctCount}/{TOTAL_QUESTIONS} slices delivered to{" "}
+            <span className="text-secondary text-glow-amber">{mission.character}</span>{" "}
+            at {mission.endLocation} —{" "}
             {correctCount === 4
-              ? "Your wagon made it to the lakefront!"
+              ? "A perfect delivery from " + mission.startLocation + "!"
               : correctCount >= 3
               ? "You survived the journey with minor setbacks."
               : correctCount >= 1
               ? "Your wagon barely limped into town."
-              : "You never made it past the city limits."}
+              : "You never made it past " + mission.startLocation + "."}
           </p>
         </div>
         <div className="pixel-border p-4 w-full text-center bg-muted">
