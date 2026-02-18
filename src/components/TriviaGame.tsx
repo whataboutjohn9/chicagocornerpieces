@@ -24,6 +24,7 @@ export default function TriviaGame() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [feedbackCorrect, setFeedbackCorrect] = useState(false);
   const [showMission, setShowMission] = useState(true);
+  const [onThisDay, setOnThisDay] = useState<{ year: string; text: string } | null>(null);
 
   const mission = getDailyMission(getTodayKey());
 
@@ -49,6 +50,22 @@ export default function TriviaGame() {
     }
     // Questions will be fetched when user dismisses mission intro
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${month}/${day}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const events: { year: number; text: string }[] = data.events || [];
+        // Prefer Chicago-related events
+        const chicago = events.find((e) => e.text.toLowerCase().includes("chicago"));
+        const pick = chicago || events[0];
+        if (pick) setOnThisDay({ year: String(pick.year), text: pick.text });
+      })
+      .catch(() => setOnThisDay(null));
   }, []);
 
   async function fetchQuestions() {
@@ -198,6 +215,16 @@ export default function TriviaGame() {
             Come back for a new challenge!
           </p>
         </div>
+
+        {onThisDay && (
+          <div className="pixel-border p-4 w-full bg-card">
+            <p className="text-secondary text-glow-amber text-xs mb-3">── ON THIS DAY IN CHICAGO HISTORY ──</p>
+            <p className="text-muted-foreground text-xs mb-1">
+              <span className="text-foreground text-glow">{onThisDay.year}</span>
+            </p>
+            <p className="text-foreground text-sm leading-snug">{onThisDay.text}</p>
+          </div>
+        )}
 
         <div className="pixel-border p-4 w-full bg-card">
           <p className="text-secondary text-glow-amber text-xs mb-3">── WGN NEWS ──</p>
