@@ -218,15 +218,15 @@ export default function TriviaGame() {
             >
               📰 Local Delivery Hero Traverses City Neighborhoods, Trivia Knowledge Cited as Key Factor
             </a>
-            <p className="text-muted-foreground text-xs mt-1">
-              Source:{" "}
+            <p className="text-muted-foreground text-xs mt-1">Source: WGN News</p>
+            <p className="text-muted-foreground text-xs">
               <a
                 href="https://whataboutjohn.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-secondary transition-colors"
               >
-                WGN News — whataboutjohn.com
+                whataboutjohn.com
               </a>
             </p>
           </div>

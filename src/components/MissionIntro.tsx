@@ -6,55 +6,8 @@ interface MissionIntroProps {
   onStart: () => void;
 }
 
-function getWeatherDescription(code: number): string {
-  const map: Record<number, string> = {
-    0: "clear skies",
-    1: "mainly clear skies",
-    2: "partly cloudy skies",
-    3: "overcast skies",
-    45: "foggy conditions",
-    48: "freezing fog",
-    51: "light drizzle",
-    53: "moderate drizzle",
-    55: "dense drizzle",
-    61: "slight rain",
-    63: "moderate rain",
-    65: "heavy rain",
-    66: "light freezing rain",
-    67: "heavy freezing rain",
-    71: "slight snowfall",
-    73: "moderate snowfall",
-    75: "heavy snowfall",
-    77: "snow grains",
-    80: "slight rain showers",
-    81: "moderate rain showers",
-    82: "violent rain showers",
-    85: "slight snow showers",
-    86: "heavy snow showers",
-    95: "thunderstorms",
-    96: "thunderstorms with slight hail",
-    99: "thunderstorms with heavy hail",
-  };
-  return map[code] || "unusual weather";
-}
-
 export default function MissionIntro({ mission, onStart }: MissionIntroProps) {
   const [step, setStep] = useState(0);
-  const [weather, setWeather] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Fetch Chicago weather from Open-Meteo (free, no key)
-    fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=41.8781&longitude=-87.6298&current=temperature_2m,weather_code&temperature_unit=fahrenheit"
-    )
-      .then((r) => r.json())
-      .then((data) => {
-        const temp = Math.round(data.current.temperature_2m);
-        const desc = getWeatherDescription(data.current.weather_code);
-        setWeather(`${temp}°F with ${desc}`);
-      })
-      .catch(() => setWeather(null));
-  }, []);
 
   useEffect(() => {
     const t1 = setTimeout(() => setStep(1), 800);
@@ -69,13 +22,6 @@ export default function MissionIntro({ mission, onStart }: MissionIntroProps) {
         <p className="text-secondary text-glow-amber text-xs mb-4">
           ── INCOMING TRANSMISSION ──
         </p>
-
-        {weather && (
-          <p className="text-muted-foreground text-sm mb-4 animate-fade-in">
-            🌤️ Meteorologist Morgan Kolkmeyer says{" "}
-            <span className="text-foreground text-glow">{weather}</span> in Chicago today.
-          </p>
-        )}
 
         {step >= 0 && (
           <p className="text-foreground text-glow leading-relaxed mb-4 animate-fade-in">
