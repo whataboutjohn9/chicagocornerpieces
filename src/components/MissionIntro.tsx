@@ -70,9 +70,9 @@ export default function MissionIntro({ mission, onStart }: MissionIntroProps) {
           ── INCOMING TRANSMISSION ──
         </p>
 
-        {step >= 0 && weather && (
+        {weather && (
           <p className="text-muted-foreground text-sm mb-4 animate-fade-in">
-            🌤️ Meteorologist Morgan Kolkmeyer says it's{" "}
+            🌤️ Meteorologist Morgan Kolkmeyer says{" "}
             <span className="text-foreground text-glow">{weather}</span> in Chicago today.
           </p>
         )}

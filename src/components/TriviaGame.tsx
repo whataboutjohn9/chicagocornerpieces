@@ -198,6 +198,39 @@ export default function TriviaGame() {
             Come back for a new challenge!
           </p>
         </div>
+
+        <div className="pixel-border p-4 w-full bg-card">
+          <p className="text-secondary text-glow-amber text-xs mb-3">── WGN NEWS ──</p>
+          <div className="flex flex-col gap-2">
+            <a
+              href="https://whataboutjohn.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground text-glow text-sm hover:text-secondary transition-colors leading-snug"
+            >
+              📰 Chicago Braces for Another Pizza Shortage as Corner Piece Demand Soars on the Northwest Side
+            </a>
+            <a
+              href="https://whataboutjohn.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground text-glow text-sm hover:text-secondary transition-colors leading-snug"
+            >
+              📰 Local Delivery Hero Traverses City Neighborhoods, Trivia Knowledge Cited as Key Factor
+            </a>
+            <p className="text-muted-foreground text-xs mt-1">
+              Source:{" "}
+              <a
+                href="https://whataboutjohn.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-secondary transition-colors"
+              >
+                WGN News — whataboutjohn.com
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
