@@ -42,15 +42,16 @@ const Index = () => {
         <h1 className="text-secondary text-glow-amber text-lg mb-2">
           CHICAGO TRAIL
         </h1>
-        <p className="text-foreground text-glow text-xs tracking-widest">
-          ═══ DAILY TRIVIA ═══
-        </p>
+
         {weather && (
           <p className="text-muted-foreground text-xs mt-3">
             🌤️ Meteorologist Morgan Kolkmeyer says{" "}
             <span className="text-foreground text-glow">{weather}</span> in Chicago today.
           </p>
         )}
+        <p className="text-foreground text-glow text-xs tracking-widest">
+          ═══ DAILY TRIVIA ═══
+        </p>
         <p className="text-muted-foreground text-[10px] mt-3">
           Four questions. One chance each. Don't die of dysentery.
         </p>

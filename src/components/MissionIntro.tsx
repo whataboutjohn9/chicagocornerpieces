@@ -48,7 +48,7 @@ export default function MissionIntro({ mission, onStart }: MissionIntroProps) {
 
         {step >= 3 && (
           <p className="text-muted-foreground text-xs animate-fade-in">
-            Answer trivia questions along the trail to earn your slices!
+            Answer trivia questions along the trail to earn your corner pieces!
           </p>
         )}
       </div>
