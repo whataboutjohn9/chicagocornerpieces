@@ -39,7 +39,7 @@ You MUST call the provide_questions function with ALL 4 questions at once.`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-2.0-flash",
           messages: [
             {
               role: "system",
@@ -97,22 +97,22 @@ You MUST call the provide_questions function with ALL 4 questions at once.`;
       }
     );
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limited — try again shortly." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits depleted." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const text = await response.text();
-      console.error("AI gateway error:", response.status, text);
-      throw new Error("AI gateway error");
+if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`AI Gateway Error Details (${response.status}):`, errorText);
+
+      // Map specific status codes to user-friendly messages
+      const errorMap = {
+        429: "Rate limited — try again shortly.",
+        402: "AI credits depleted.",
+        404: "Model name not recognized. Check the model string.",
+        401: "Invalid API Key. Check LOVABLE_API_KEY."
+      };
+
+      return new Response(
+        JSON.stringify({ error: errorMap[response.status] || `Gateway Error: ${errorText}` }),
+        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
